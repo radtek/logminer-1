@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="GBK"?>
+<context>
+  <properties>
+    <property name="commitcount" value="100"/>
+    <property name="excludecount" value="0"/>
+    <property name="threadnum" value="1"/>
+    <property name="maxdmlnum" value="100"/>
+    <property name="maxpacketnum" value="200"/>
+  </properties>
+  <datasource>
+    <source>
+      <property name="type" value="Oracle"/>
+      <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+      <property name="address" value="10.11.1.195"/>
+      <property name="port" value="1521"/>
+      <property name="sid" value="nedb2"/>
+      <property name="name" value="ane"/>
+      <property name="username" value="LOGMINER"/>
+      <property name="password" value="LOGMINER"/>
+    </source>
+    <target>
+      <property name="type" value="OBase"/>
+      <property name="driver" value="com.mysql.jdbc.Driver"/>
+      <property name="address" value="10.11.1.199"/>
+      <property name="port" value="10004"/>
+      <property name="sid" value="anehistory"/>
+      <property name="name" value="anehistory"/>
+      <property name="username" value="admin"/>
+      <property name="password" value="admin"/>
+    </target>
+  </datasource>
+  <fileset>
+    <property name="dictdir" value="D:/zhangcd/lgm"/>
+    <property name="logdir" value="D:\zhangcd\ane_test\"/>
+    <property name="watcherdir" value="D:/zhangcd/oraclelog"/>
+    <property name="bakdir" value="D:/zhangcd/oraclelog/bak"/>
+  </fileset>
+  <mapper>
+    <datatype>
+      <item>
+        <tablename/>
+        <source>varchar2</source>
+        <target>varchar</target>
+      </item>
+    </datatype>
+    
+  <field><item><tablename>HS_GLOBAL_CLOB</tablename><source>EMPTY_CLOB()</source><target>TEST</target></item><item><tablename>DATA_USER</tablename><source>CREATETIME</source><target>CREATE_TIME</target></item><item><tablename>DATA_USER</tablename><source>PASSWORD</source><target>PASS_WORD</target></item><item><tablename>DATA_USER</tablename><source>MODIFYTIME</source><target>MODIFY_TIME</target></item></field></mapper>
+</context>
