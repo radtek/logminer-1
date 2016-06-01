@@ -1,0 +1,12 @@
+2016-06-02 01:20:58,979 [Worker-3] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.logminerplus:logminerplus:0.0.1-SNAPSHOT @ C:\private_work\git_clone\logminer\logminer\pom.xml.
+2016-06-02 01:20:58,979 [Worker-8] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.logminerplus:logminerplus:0.0.1-SNAPSHOT @ C:\private_work\git_clone\logminer\logminer\pom.xml.
+2016-06-02 01:21:00,164 [Worker-8] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (GBK actually) to copy filtered resources, i.e. build is platform dependent!
+2016-06-02 01:21:00,180 [Worker-8] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 17 resources
+2016-06-02 01:21:00,264 [Worker-8] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (GBK actually) to copy filtered resources, i.e. build is platform dependent!
+2016-06-02 01:21:00,280 [Worker-8] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 2 resources
+2016-06-02 01:21:00,296 [Worker-4] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.logminerplus:logminerplus:0.0.1-SNAPSHOT @ C:\private_work\git_clone\logminer\logminer\pom.xml.
+2016-06-02 01:21:00,598 [Worker-4] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.logminerplus:logminerplus:0.0.1-SNAPSHOT @ C:\private_work\git_clone\logminer\logminer\pom.xml.
+2016-06-02 01:21:02,563 [Worker-7] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (GBK actually) to copy filtered resources, i.e. build is platform dependent!
+2016-06-02 01:21:02,576 [Worker-7] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 17 resources
+2016-06-02 01:21:02,640 [Worker-7] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (GBK actually) to copy filtered resources, i.e. build is platform dependent!
+2016-06-02 01:21:02,655 [Worker-7] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 2 resources

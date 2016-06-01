@@ -1,0 +1,24 @@
+INDEX VERSION 1.127+C:\private_work\git_clone\logminer\.metadata\.plugins\org.eclipse.jdt.core
+2189270875.index
+4155206848.index
+1995173708.index
+3065916431.index
+383382256.index
+1036242438.index
+1115467115.index
+1697886153.index
+3268901719.index
+3133528496.index
+4041092966.index
+1299022128.index
+1498219845.index
+3321857464.index
+1583379067.index
+305854171.index
+4108727661.index
+163172794.index
+574348239.index
+1224673503.index
+3974580528.index
+30765161.index
+982749158.index
