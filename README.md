@@ -1,0 +1,2 @@
+# logminer
+oracle oceanbase logminer
