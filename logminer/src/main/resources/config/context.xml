@@ -30,10 +30,10 @@
     </target>
   </datasource>
   <fileset>
-    <property name="dictdir" value="D:/zhangcd/lgm"/>
-    <property name="logdir" value="D:\zhangcd\ane_test\"/>
-    <property name="watcherdir" value="D:/zhangcd/oraclelog"/>
-    <property name="bakdir" value="D:/zhangcd/oraclelog/bak"/>
+    <property name="dictdir" value="/home/oracle/lgm"/>
+    <property name="logdir" value="/home/oracle/ane_test"/>
+    <property name="watcherdir" value="C:/private_work/work/ane_test"/>
+    <property name="bakdir" value="/home/oracle/ane_test/bak"/>
   </fileset>
   <mapper>
     <datatype>

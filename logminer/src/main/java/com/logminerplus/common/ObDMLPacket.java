@@ -4,15 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.logminerplus.common.ObDefine;
-import com.logminerplus.common.ObException;
 import com.logminerplus.core.Miner;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
-
-import com.logminerplus.bean.Log;
-
-//import com.logminerplus.common.ObPacketType;
 
 public class ObDMLPacket 
 {
@@ -40,7 +34,7 @@ public class ObDMLPacket
   
   private int status_;
   
-  private BloomFilter<String> bloomFilter_ = new BloomFilter(ObDefine.OB_BLOOM_FILTER_POSITIVE,ObDefine.OB_EXPECT_BM_SIZE);
+  private BloomFilter<String> bloomFilter_ = new BloomFilter<String>(ObDefine.OB_BLOOM_FILTER_POSITIVE,ObDefine.OB_EXPECT_BM_SIZE);
   
   public int batchUpdateCount = 0;
   

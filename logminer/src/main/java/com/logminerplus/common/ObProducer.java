@@ -9,12 +9,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
-
 import com.logminerplus.bean.Log;
 import com.logminerplus.bean.Mapper;
-import com.logminerplus.core.Miner;
 import com.logminerplus.core.MinerConvert;
 import com.logminerplus.jdbc.DataBase;
 import com.logminerplus.utils.Context;

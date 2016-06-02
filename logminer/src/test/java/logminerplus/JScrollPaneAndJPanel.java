@@ -9,6 +9,10 @@ import javax.swing.JScrollPane;
 
 public class JScrollPaneAndJPanel extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6049129826197568833L;
 	public JScrollPaneAndJPanel() {
 		  super("TestJScrollPane");
 		  this.setLayout(null);

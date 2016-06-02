@@ -17,23 +17,23 @@ import com.logminerplus.utils.Context;
 import org.apache.commons.logging.LogFactory;
 
 public class ObConsumer extends Thread {
-	ArrayBlockingQueue<ObDMLPacket> taskQueue_;
+	private ArrayBlockingQueue<ObDMLPacket> taskQueue_;
 
-	public org.apache.commons.logging.Log sqlsLog = LogFactory.getLog("sqls");
+	private org.apache.commons.logging.Log sqlsLog_ = LogFactory.getLog("sqls");
 
-	private Connection autoCommitConnection = null;
-	private Connection commitConnection = null;
-	private ResultSet resultSet = null;
-	private int seq = 0;
-	private int seqBak = 0;
-	private int index = 0;
+	private Connection autoCommitConnection_ = null;
+	private Connection commitConnection_ = null;
+	private ResultSet resultSet_ = null;
+	private int seq_ = 0;
+	private int seqBak_ = 0;
+	private int index_ = 0;
 
-	private static String dictionary = null;
-	private static List<Mapper> mapperList = null;
-	private static String sourceName = null;
-	private static String targetName = null;
+	private String dictionary_ = null;
+	private List<Mapper> mapperList_ = null;
+	private String sourceName_ = null;
+	private String targetName_ = null;
 
-	public static Object lock = new Object();
+	private Object lock_ = new Object();
 
 	public ObConsumer() {
 		try {
@@ -47,32 +47,31 @@ public class ObConsumer extends Thread {
 	public void init() throws Exception {
 		taskQueue_ = new ArrayBlockingQueue<ObDMLPacket>(
 				ObDefine.OB_MAX_PACKET_NUM);
-		dictionary = Context.getInstance().getFileSet().getDictdir();
-		mapperList = Context.getInstance().getMapperList();
-		sourceName = Context.getInstance().getDataSource("source").getName()
+		dictionary_ = Context.getInstance().getFileSet().getDictdir();
+		mapperList_ = Context.getInstance().getMapperList();
+		sourceName_ = Context.getInstance().getDataSource("source").getName()
 				.toUpperCase();
-		targetName = Context.getInstance().getDataSource("target").getName()
+		targetName_ = Context.getInstance().getDataSource("target").getName()
 				.toUpperCase();
 	}
 
 	public int getSeq() {
-		return seq;
+		return seq_;
 	}
 
 	public void startConnection() {
 		ObDefine.logger.info("################Start################");
 		ObDefine.logger.info("thread id = " + this.getId());
-		autoCommitConnection = null;
-		commitConnection = null;
-		resultSet = null;
+		autoCommitConnection_ = null;
+		commitConnection_ = null;
+		resultSet_ = null;
 		try {
-			autoCommitConnection = DataBase.getTargetDataBase();
-			commitConnection = DataBase.getTargetDataBase();
+			autoCommitConnection_ = DataBase.getTargetDataBase();
+			commitConnection_ = DataBase.getTargetDataBase();
 		} catch (NullPointerException e) {
 			ObDefine.logger.error("null pointer!");
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -89,15 +88,15 @@ public class ObConsumer extends Thread {
 	}
 
 	public void setIndex(int idx) {
-		index = idx;
+		index_ = idx;
 	}
 
 	public void finishCommit() {
-		if (ObDefine.OB_PRODUCE_LOCK.compareAndSet(ObDefine.OB_INVALID_ID, index)) {
-			ObDefine.logger.info("finishcommit index[" + index + "] success!");
+		if (ObDefine.OB_PRODUCE_LOCK.compareAndSet(ObDefine.OB_INVALID_ID, index_)) {
+			ObDefine.logger.info("finishcommit index[" + index_ + "] success!");
 		}
 		else {
-			ObDefine.logger.info("finishcommit index[" + index + "] failed!");			
+			ObDefine.logger.info("finishcommit index[" + index_ + "] failed!");			
 		}
 	}
 
@@ -116,10 +115,10 @@ public class ObConsumer extends Thread {
 		Statement connStatement = null;
 		String convert = null;
 		try {
-			commitConnection.setAutoCommit(false);
-			autoCommitConnection.setAutoCommit(true);
-			aotuConnStatement = autoCommitConnection.createStatement();
-			connStatement = commitConnection.createStatement();
+			commitConnection_.setAutoCommit(false);
+			autoCommitConnection_.setAutoCommit(true);
+			aotuConnStatement = autoCommitConnection_.createStatement();
+			connStatement = commitConnection_.createStatement();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,7 +128,7 @@ public class ObConsumer extends Thread {
 		boolean stop = false;
 		while (!stop) {
 //			ObDefine.logger.info("!taskQueue_.isEmpty() && 0 < ObCommitQueue.getSize() => " + (!taskQueue_.isEmpty() && 0 < ObCommitQueue.getSize()));
-			while (!taskQueue_.isEmpty() && 0 < ObCommitQueue.getSize()) {
+			while (!taskQueue_.isEmpty() && 0 < ObDefine.COMMIT_QUEUE.getSize()) {
 				try {
 					task = taskQueue_.take();
 					itr = null;
@@ -153,14 +152,14 @@ public class ObConsumer extends Thread {
 						}
 					}
 					while (true) {
-						cTask = ObCommitQueue.getTopPacket();
+						cTask = ObDefine.COMMIT_QUEUE.getTopPacket();
 						if (cTask.getSeq() == task.getSeq()) {
 							// TODO if equal, handle task and notify all
 							try {
-								commitConnection.commit();
-								commitConnection.setAutoCommit(false);
-								seq = task.getSeq();
-								ObDefine.seq[index] += task.getPacketSize();
+								commitConnection_.commit();
+								commitConnection_.setAutoCommit(false);
+								seq_ = task.getSeq();
+								ObDefine.seq[index_] += task.getPacketSize();
 								stop = true;
 							} catch (SQLException e) {
 								e.printStackTrace();
@@ -173,7 +172,7 @@ public class ObConsumer extends Thread {
 					}
 				}
 				try {
-					ObCommitQueue.pop();
+					ObDefine.COMMIT_QUEUE.pop();
 					finishCommit();
 					cTask = null;
 				} catch (InterruptedException e) {

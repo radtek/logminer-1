@@ -1,17 +1,13 @@
 package com.logminerplus.common;
 
-import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class ObCommitQueue  
 {
-  static private LinkedBlockingDeque<ObDMLPacket> commitQueue_;
-  public static boolean inited_ = false;
-  public static void init()
+  private LinkedBlockingDeque<ObDMLPacket> commitQueue_;
+  private boolean inited_ = false;
+  public void init()
   {
 	commitQueue_ = new LinkedBlockingDeque<ObDMLPacket>(ObDefine.OB_MAX_COMMIT_TASK_NUM);
 	inited_ = true;
@@ -19,7 +15,7 @@ public class ObCommitQueue
 
   }
   
-  public static int pushCommitTask(ObDMLPacket packet) throws InterruptedException
+  public int pushCommitTask(ObDMLPacket packet) throws InterruptedException
   {
 	int ret = ObDefine.OB_SUCCESS;
 	if(ObDefine.OB_MAX_COMMIT_TASK_NUM == commitQueue_.size())
@@ -33,7 +29,7 @@ public class ObCommitQueue
 	return ret;
   }
   
-  public static int[] getConflictThreadId(String tableName)
+  public int[] getConflictThreadId(String tableName)
   {
 	int ret[] = new int[2];
 	int index = ObDefine.OB_INVALID_ID;
@@ -55,24 +51,24 @@ public class ObCommitQueue
 	return ret;
   }
   
-  public static ObDMLPacket getTopPacket()
+  public ObDMLPacket getTopPacket()
   {
 	return commitQueue_.peek();
 	//commitQueue_.descendingIterator()
   }
   
-  public static void pop() throws InterruptedException
+  public void pop() throws InterruptedException
   {
 	commitQueue_.take();
 	//commitQueue_.
   }
   
-  public static void clean()
+  public void clean()
   {
 	commitQueue_.clear();
   }
   
-  public static int getSize()
+  public int getSize()
   {
 	return commitQueue_.size();
   }

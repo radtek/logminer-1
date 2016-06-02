@@ -192,7 +192,7 @@ public class ObNewProducer
   {
   }
   
-  public static void init()
+  public void init()
   {
 	ObDefine.COMMIT_QUEUE.init();
 	ObDefine.hash.put("HS_KPI_EWB", 1);
