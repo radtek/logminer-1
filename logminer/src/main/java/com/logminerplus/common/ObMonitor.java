@@ -1,9 +1,5 @@
 package com.logminerplus.common;
 
-import org.apache.log4j.Logger;
-
-import com.logminerplus.gui.pane.ListenerManagePane;
-
 public class ObMonitor extends Thread{
 	//private  Logger logger = Logger.getLogger(ListenerManagePane.class.getName());
 	

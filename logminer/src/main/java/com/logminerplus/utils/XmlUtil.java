@@ -32,9 +32,7 @@ public class XmlUtil {
         return w.toString();
     }
 
-
-    public static void write(Document element, Writer wt, OutputFormat of)
-            throws IOException {
+    public static void write(Document element, Writer wt, OutputFormat of) throws IOException {
         XMLWriter writer = new XMLWriter(wt, of);
         writer.write(element);
     }
@@ -50,7 +48,7 @@ public class XmlUtil {
         }
         return document;
     }
-    
+
     public static Document parse(String str) throws IOException {
         Document document;
         try {
@@ -60,5 +58,5 @@ public class XmlUtil {
         }
         return document;
     }
-    
+
 }
