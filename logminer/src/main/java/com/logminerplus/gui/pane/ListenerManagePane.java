@@ -164,7 +164,7 @@ public class ListenerManagePane {
         }
     }
 
-    private void initData() throws Exception {
+    public void initData() throws Exception {
         bean = Context.getInstance().getFileSet();
         logger.info("Initialization Log Files");
         columnNames = new Vector<String>();
@@ -453,7 +453,6 @@ public class ListenerManagePane {
             MinerThread thread = new MinerThread();
             thread.init();
             thread.start();
-            // new Thread(thread).start();
         } else {
             logger.info("Log List is null!");
         }

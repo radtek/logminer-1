@@ -24,5 +24,4 @@ public class LogAppender extends Thread {
         // 设置 appender 输出流
         ((WriterAppender) appender).setWriter(writer);
     }
-
 }

@@ -9,7 +9,6 @@ public class MinerConvert {
     public static String convertSql(String redo, String sourceName, String targetName, List<Mapper> mapperList, boolean update) throws Exception {
         if (update) {
             redo = redo.replaceAll("UPDATE", "update " + "/*+ UD_MULTI_BATCH*/ ");
-            // return redo;
         }
 
         // 1.替换双引号；

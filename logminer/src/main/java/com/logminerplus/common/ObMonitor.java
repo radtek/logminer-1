@@ -1,8 +1,6 @@
 package com.logminerplus.common;
 
-public class ObMonitor extends Thread{
-	//private  Logger logger = Logger.getLogger(ListenerManagePane.class.getName());
-	
+public class ObMonitor extends Thread{	
 	@Override
 	public void run()
 	{
@@ -22,10 +20,7 @@ public class ObMonitor extends Thread{
 		for(int i = 0; i < ObDefine.OB_THREAD_NUM; i++)
 		{
 		  tmp = ObDefine.seq[i];
-		  sum += (tmp - pre[i]);
-          //if(ObDefine.seq[i] - pre[i] > 0)
-        	 // ObDefine.logger.info("single ops = "+(ObDefine.seq[i] - pre[i])+"dml tid = "+i);
-		  
+		  sum += (tmp - pre[i]);		  
 		  pre[i] = tmp;
 		  
 		}

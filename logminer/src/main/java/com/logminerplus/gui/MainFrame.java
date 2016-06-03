@@ -217,7 +217,6 @@ public class MainFrame extends JFrame {
             show.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     // 从系统的托盘实例中移除托盘图标
-                    // systemTray.remove(trayIcon);
                     setVisible(true);
                     setExtendedState(JFrame.NORMAL);
                 }
@@ -299,8 +298,6 @@ public class MainFrame extends JFrame {
                 }
             });
             menuLog.add(menuLogView);
-            // menuLog.addSeparator();
-            // menuLog.add(menuLogImport);
 
             // 帮助
             Menu menuHelp = new Menu(Context.getInstance().getProperty(PropertiesConstants.MENU_HELP));
@@ -335,13 +332,11 @@ public class MainFrame extends JFrame {
         if (menuNameList == null) {
             menuNameList = new ArrayList<String>();
             menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_HOME));
-            // menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_SETTINGS));
             menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_DATASOURCE));
             menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_FILEDIR));
             menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_FIELDMAP));
             menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_LISTENER));
             menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_LOGMANAGER));
-            // menuNameList.add(Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_CONSOLE));
         }
         JScrollPane scrollPane = new JScrollPane();
         if (menuList == null) {
@@ -373,9 +368,6 @@ public class MainFrame extends JFrame {
             logger.debug("Init Home Start");
             mainTabbedPane.add(">>", new HomePane().init());
             logger.debug("Init Home End");
-            // logger.debug("Init Settings Start");
-            // mainTabbedPane.add(">>", new SettingsPane().init());
-            // logger.debug("Init Settings End");
             logger.debug("Init DS Start");
             mainTabbedPane.add(">>", createDSPane());
             logger.debug("Init DS End");
@@ -391,9 +383,6 @@ public class MainFrame extends JFrame {
             logger.debug("Init LogManage Start");
             mainTabbedPane.add(">>", new LogManagePane().init());
             logger.debug("Init LogManage End");
-            // logger.debug("Init Console Start");
-            // mainTabbedPane.add(">>", new ConsolePane().init());
-            // logger.debug("Init Console End");
             mainTabbedPane.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
                     JTabbedPane jtp = (JTabbedPane) e.getSource();

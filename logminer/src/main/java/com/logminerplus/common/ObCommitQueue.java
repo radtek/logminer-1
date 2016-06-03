@@ -11,8 +11,6 @@ public class ObCommitQueue {
         commitQueue_ = new LinkedBlockingDeque<ObDMLPacket>(
                 ObDefine.OB_MAX_COMMIT_TASK_NUM);
         inited_ = true;
-        // commitQueue_.toArray()[0].getClass().
-
     }
 
     public int pushCommitTask(ObDMLPacket packet) throws InterruptedException {
@@ -37,8 +35,6 @@ public class ObCommitQueue {
             if (element.checkRowExist(tableName)) {
                 ret[0] = index;
                 ret[1] = element.getThreadId();
-                // ObDefine.logger.info("test::whx =>" + tableName + "  "+ret[0]
-                // +"  "+ret[1]);
                 break;
             }
         }
@@ -47,12 +43,10 @@ public class ObCommitQueue {
 
     public ObDMLPacket getTopPacket() {
         return commitQueue_.peek();
-        // commitQueue_.descendingIterator()
     }
 
     public void pop() throws InterruptedException {
         commitQueue_.take();
-        // commitQueue_.
     }
 
     public void clean() {

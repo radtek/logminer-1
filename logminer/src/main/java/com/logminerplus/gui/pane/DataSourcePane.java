@@ -78,7 +78,7 @@ public class DataSourcePane extends BasicPane {
 
         Box vBox = initFormBox();
         northPane.add(vBox);
-        //
+
         initButton();
 
         if ("target".equals(ele)) {
@@ -91,11 +91,11 @@ public class DataSourcePane extends BasicPane {
         southPane.add(editBtn);
         southPane.add(saveBtn);
         southPane.add(cancelBtn);
-        //
+
         bean = Context.getInstance().getDataSource(ele);
         setValue();
         setEditStatus(false);
-        //
+
         formPane.setLayout(new BorderLayout(0, 0));
         formPane.add(northPane, BorderLayout.NORTH);
         formPane.add(southPane, BorderLayout.SOUTH);

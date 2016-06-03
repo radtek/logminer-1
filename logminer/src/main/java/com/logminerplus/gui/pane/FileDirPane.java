@@ -137,27 +137,17 @@ public class FileDirPane extends BasicPane {
         logDirSelectBtn.addActionListener(new SelectActionListener(JFileChooser.DIRECTORIES_ONLY, logDirField));
         bakDirSelectBtn.addActionListener(new SelectActionListener(JFileChooser.DIRECTORIES_ONLY, bakDirField));
         watcherDirSelectBtn.addActionListener(new SelectActionListener(JFileChooser.DIRECTORIES_ONLY, watcherDirField));
+        
         editBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_EDIT));
         editBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setEditStatus(true);
             }
         });
+
         saveBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_SAVE));
-        saveBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String prefix = Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_FILEDIR);
-                try {
-                    Fileset bean = getValue();
-                    Context.getInstance().writeFileSet(bean);
-                    logger.info(prefix + "-保存成功！");
-                } catch (Exception e2) {
-                    e2.printStackTrace();
-                    logger.error(prefix + "-保存失败", e2);
-                }
-                setEditStatus(false);
-            }
-        });
+        saveBtn.addActionListener(new SaveActionListener());
+
         cancelBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_CANCEL));
         cancelBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -201,6 +191,25 @@ public class FileDirPane extends BasicPane {
                 String path = file.getAbsolutePath();
                 field.setText(path);
             }
+        }
+    }
+    
+    class SaveActionListener implements ActionListener {
+
+        public SaveActionListener() {
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            String prefix = Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_FILEDIR);
+            try {
+                Fileset bean = getValue();
+                Context.getInstance().writeFileSet(bean);
+                logger.info(prefix + "-保存成功！");
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error(prefix + "-保存失败", e);
+            }
+            setEditStatus(false);
         }
     }
 

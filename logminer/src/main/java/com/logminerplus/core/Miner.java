@@ -85,15 +85,10 @@ public class Miner {
                     if (redo.startsWith("insert") || redo.startsWith("delete") || redo.startsWith("update")) {
                         // last sql
                         last = MinerConvert.convertSql(redo, sourceName, targetName, mapperList, false);
-                        // logger.info("# redo: "+nextScn+" "+redo);
-                        // logger.info("# last: "+nextScn+" "+last);
                         // run sql
                         try {
                             targetStat.executeUpdate(last);
-                            // sqlsLog.info(filename + " " + nextScn + " " +
-                            // last);
                         } catch (Exception e) {
-                            // logger.error("Error:"+nextScn, e);
                             sqlsLog.error(filename + " " + nextScn + " " + last);
                             isError = true;
                         }

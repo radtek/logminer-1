@@ -92,7 +92,6 @@ class newDmlRecord {
         int[] pos = new int[2];
         pos = Arrays.copyOf(getConflictRowThread(blockstr), 2);
         if (ObDefine.OB_INVALID_ID != pos[0]) {
-            // ObDefine.logger.info("Thread[0] " +pos[0]+"Thread[1]" +pos[1]);
             if (ObDefine.OB_INVALID_ID == conflictThread[0]) {
                 conflictThread = Arrays.copyOf(pos, 2);
             } else if (pos[0] < conflictThread[0]) {

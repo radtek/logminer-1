@@ -21,7 +21,6 @@ class dmlStore {
     public ObPacketType type = ObPacketType.ERROR;
     public long scn = ObDefine.OB_INVALID_ID;
     public int updateRowCount = 0;
-    // public int adviceThreadId = ObDefine.OB_INVALID_ID;
     public int[] conflictPos = new int[2];
 
     public dmlStore() {
@@ -33,10 +32,8 @@ class dmlStore {
         rowId = null;
         type = ObPacketType.ERROR;
         scn = ObDefine.OB_INVALID_ID;
-        // adviceThreadId = ObDefine.OB_INVALID_ID;
         conflictPos[0] = ObDefine.OB_INVALID_ID;
         conflictPos[1] = ObDefine.OB_INVALID_ID;
-        // this.conflictPos =
     }
 
     public void copy(dmlStore other) {
@@ -45,7 +42,6 @@ class dmlStore {
         this.type = other.type;
         this.scn = other.scn;
         this.updateRowCount = other.updateRowCount;
-        // sthis.adviceThreadId = other.adviceThreadId;
         this.conflictPos = Arrays.copyOf(other.conflictPos, 2);
     }
 
@@ -65,8 +61,6 @@ class dmlStore {
         int[] pos = new int[2];
         pos = getConflictRowThreadId(rowId);
         if (pos[0] != ObDefine.OB_INVALID_ID) {
-            // ObDefine.logger.info("pos[1] = "+
-            // pos[1]+"conflictPos[1] = "+conflictPos[1]);
             if (ObDefine.OB_INVALID_ID == conflictPos[0]) {
                 conflictPos = Arrays.copyOf(pos, 2);
             } else if (pos[0] < conflictPos[0]) {
@@ -112,8 +106,6 @@ class dmlStorePool {
     public void pop() {
         head.copy(tail);
         tail.reset();
-        ;
-        // return ret;
     }
 
     public dmlStore getOne() {
@@ -133,9 +125,6 @@ public class ObProducer {
     private static String sourceName;
     private static String targetName;
     private static List<Mapper> mapperList;
-    // private static BloomFilter<String>[] bloomFilter = new
-    // BloomFilter[ObDefine.OB_THREAD_NUM];
-    // public static Logger logger = Logger.getLogger(Miner.class.getName());
 
     private static Connection sourceConn = null;
     private static Connection targetConn = null;
@@ -156,8 +145,6 @@ public class ObProducer {
     public int seq = 0;
     private boolean cond = false;
 
-    // private ObDMLPacket packet = new ObDMLPacket();
-
     public ObProducer() {
     }
 
@@ -176,12 +163,6 @@ public class ObProducer {
         ObDefine.hash.put("HS_AUTH_LOGIN_HISTORY", 1);
         ObDefine.hash.put("HS_EWBS_LIST_DETAIL", 1);
         ObDefine.hash.put("HS_QUOTE_EX_PROP", 1);
-        // for(int i = 0; i < ObDefine.OB_THREAD_NUM; i++)
-        // {
-        // bloomFilter[i] = new
-        // BloomFilter<String>(ObDefine.OB_BLOOM_FILTER_POSITIVE,
-        // ObDefine.OB_EXPECT_BM_SIZE);
-        // }
 
         try {
             dictionary = Context.getInstance().getFileSet().getDictdir();
@@ -216,7 +197,6 @@ public class ObProducer {
 
     public String getLastRowId() {
         if (hasBatchUpdate) {
-            // hasBatchUpdate = false;
             return batchUpdateRowId;
         } else {
             return lastRowId;
@@ -268,10 +248,6 @@ public class ObProducer {
                 ObDefine.logger.info("# StartScn:" + startScn);
                 callableStatement = sourceConn.prepareCall(start_logmnr(0, dictionary));
                 callableStatement.execute();
-                // minScn = getMinScn(sourceStat);
-                // maxScn = getMaxScn(sourceStat);
-                // logger.info("# MinScn:"+minScn);
-                // logger.info("# MaxScn:"+maxScn);
                 ObDefine.logger.info("# Result:");
                 resultSet = sourceStat.executeQuery(getSql(startScn));
 
@@ -287,7 +263,6 @@ public class ObProducer {
         int ret = ObDefine.OB_ERROR;
         dmlStore dml = new dmlStore();
         String tmp, convert, tableName = null;
-        // boolean isBatchUpdate = false;
         while (true) {
             if (resultSet.next()) {
                 tmp = resultSet.getString(6);
@@ -306,10 +281,7 @@ public class ObProducer {
                 dml.scn = resultSet.getLong(2);
                 dml.rowId = resultSet.getString(1);
                 seq++;
-                // ObDefine.sqlsLog.info("msg:\t"+ObDefine.debugId++
-                // +"\t"+dml.redo+"\t"+dml.rowId+"\t"+dml.scn);
                 if (ObDefine.OB_NEED_AGAIN != (ret = pool.addIn(dml))) {
-                    // logger.info("break"+dml.redo);
                     break;
                 }
                 packet.addTableName(dml.rowId);
@@ -332,7 +304,6 @@ public class ObProducer {
         packet.setPacketType(ObPacketType.TRANSACTION); // default situation
         while (true) {
             if (ObDefine.OB_SAFE_DML_NUM <= packet.getArraySize()) {
-                // logger.info("break ");
                 break;
             }
             if (ObDefine.OB_ITER_END == (tmpRet = next(packet)) && pool.isEmpty()) {
@@ -340,11 +311,7 @@ public class ObProducer {
                 break;
             } else {
                 dml = pool.getOne();
-                // slogger.info("dml log " + dml.redo);
                 if (ObPacketType.BATCHUPDATE == dml.type) {
-                    // String tmp = dml.redo;
-                    // dml.redo = MinerConvert.convertSql(tmp, sourceName,
-                    // targetName, mapperList,true);
                     if ((!dml.ifBatchUpdateSafe()) && packet.isEmpty()) {
                         packet.setPacketType(dml.type);
                         packet.addDML(dml.redo, dml.rowId, dml.updateRowCount);
@@ -353,7 +320,6 @@ public class ObProducer {
                             packet.conflictPos_ = dml.conflictPos[0];
                             packet.setThreadID(dml.conflictPos[1]);
                         }
-                        // seq++;
                         packet.setSeq(seq);
                         pool.pop();
                         break;
@@ -372,55 +338,40 @@ public class ObProducer {
                                 packet.setThreadID(dml.conflictPos[1]);
                             }
                         }
-                        // seq++;
                         packet.setSeq(seq);
                         pool.pop();
                     }
-                    // logger.info("break, batchupdate");
-                    // break;
                 } else {
-                    // logger.info("dml log " + dml.redo);
                     if (ObDefine.OB_INVALID_ID != (dml.conflictPos[0])) {
                         if (ObDefine.OB_INVALID_ID == packet.conflictPos_) {
                             packet.conflictPos_ = dml.conflictPos[0];
                             packet.setThreadID(dml.conflictPos[1]);
                             packet.addDML(dml.redo, dml.rowId, dml.updateRowCount);
                             packet.setCommitScn(dml.scn);
-                            // seq++;
                             packet.setSeq(seq);
-                            // packet.setThreadID(tid);
                             pool.pop();
-                            // logger.info("add dml log " + dml.redo);
                         } else if (packet.conflictPos_ > dml.conflictPos[0]) {
                             packet.conflictPos_ = dml.conflictPos[0];
                             packet.setThreadID(dml.conflictPos[1]);
                             packet.addDML(dml.redo, dml.rowId, dml.updateRowCount);
                             packet.setCommitScn(dml.scn);
-                            // seq++;
                             pool.pop();
                             packet.setSeq(seq);
-                            // break;
-                            // pool.pop();
-                            // logger.info("add dml log 2" + dml.redo);
                         } else {
                             packet.addDML(dml.redo, dml.rowId, dml.updateRowCount);
                             packet.setCommitScn(dml.scn);
-                            // seq++;
                             pool.pop();
                             packet.setSeq(seq);
                         }
                     } else {
                         packet.addDML(dml.redo, dml.rowId, dml.updateRowCount);
                         packet.setCommitScn(dml.scn);
-                        // seq++;
                         packet.setSeq(seq);
                         pool.pop();
-                        // logger.info("common add dml log 2" + dml.redo);
                     }
                 }
             }
         }
-        // ret = packet;
         if (ObDefine.OB_SAFE_DML_NUM > packet.getArraySize()) {
             ObDefine.logger.info("size = " + packet.getArraySize() + "type = " + packet.getType());
         }
@@ -432,20 +383,11 @@ public class ObProducer {
         String rid = null;
         while (itr.hasNext()) {
             rid = itr.next();
-            // bloomFilter[tid].add(rid);
         }
     }
 
     public int checkBloomFilter(String RowId) {
         int ret = ObDefine.OB_INVALID_ID;
-        // for(int i = 0; i < ObDefine.OB_THREAD_NUM; i++)
-        // {
-        // if(bloomFilter[i].contains(RowId))
-        // {
-        // ret = i;
-        // break;
-        // }
-        // }
         return ret;
     }
 
@@ -458,9 +400,7 @@ public class ObProducer {
 
             if (!(tmp.startsWith("insert") || tmp.startsWith("update") || tmp.startsWith("delete") || tmp.startsWith("replace")))
                 continue;
-            // logger.info("result set next" + tmp);
             convert = MinerConvert.convertSql(tmp, sourceName, targetName, mapperList, false);
-            // convert = tmp;
             if (lastRedo != null) {
                 if (0 != convert.compareTo(lastRedo)) {
                     if (ret != ObDefine.OB_BATCH_UPDATE) {
@@ -502,7 +442,6 @@ public class ObProducer {
 
     public String get_next_sql() throws SQLException {
         if (hasBatchUpdate) {
-            // hasBatchUpdate = false;
             return batchUpdateRedo;
         } else {
             return lastRedo;
@@ -512,7 +451,6 @@ public class ObProducer {
 
     public long get_next_scn() {
         if (hasBatchUpdate) {
-            // hasBatchUpdate = false;
             return batchUpdateScn;
         } else {
             return curScn;

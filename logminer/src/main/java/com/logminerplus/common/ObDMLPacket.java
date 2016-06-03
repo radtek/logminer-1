@@ -243,7 +243,6 @@ public class ObDMLPacket
 	}
 	itr = other.gettableNameIter();
 	it= null;
-	//ObDefine.logger.info("add start");
 	while(itr.hasNext())
 	{
 	  it = itr.next();
@@ -251,9 +250,7 @@ public class ObDMLPacket
 	  {
 		bloomFilter_.add(it); 
 	  }
-	  //ObDefine.logger.info("add table name "+it);
 	}
-	//ObDefine.logger.info("add end");
 	seq_ = other.getSeq();
 	dmlCount_ += other.getPacketSize();
 	this.type_ = ObPacketType.TRANSACTION;

@@ -128,8 +128,6 @@ public class ObConsumer extends Thread {
         long longtime2 = 0;
         boolean stop = false;
         while (!stop) {
-            // ObDefine.logger.info("!taskQueue_.isEmpty() && 0 < ObCommitQueue.getSize() => "
-            // + (!taskQueue_.isEmpty() && 0 < ObCommitQueue.getSize()));
             while (!taskQueue_.isEmpty() && 0 < ObDefine.COMMIT_QUEUE.getSize()) {
                 try {
                     task = taskQueue_.take();
