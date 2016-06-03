@@ -120,7 +120,7 @@ public class FileDirPane extends BasicPane {
         southPane.add(cancelBtn);
         //
         bean = Context.getInstance().getFileSet();
-        setValue();
+        setDirText();
         setEditStatus(false);
         //
         mainPanel.setLayout(new BorderLayout(0, 0));
@@ -151,7 +151,7 @@ public class FileDirPane extends BasicPane {
         cancelBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_CANCEL));
         cancelBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                setValue();
+                setDirText();
                 setEditStatus(false);
             }
         });
@@ -202,8 +202,8 @@ public class FileDirPane extends BasicPane {
         public void actionPerformed(ActionEvent event) {
             String prefix = Context.getInstance().getProperty(PropertiesConstants.MENU_LIST_FILEDIR);
             try {
-                Fileset bean = getValue();
-                Context.getInstance().writeFileSet(bean);
+                setFilesetValue();
+                Context.getInstance().writeFileSet(bean);                
                 logger.info(prefix + "-保存成功！");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -213,20 +213,17 @@ public class FileDirPane extends BasicPane {
         }
     }
 
-    private void setValue() {
+    private void setDirText() {
         dictDirField.setText(bean.getDictdir());
         logDirField.setText(bean.getLogdir());
         watcherDirField.setText(bean.getWatcherdir());
         bakDirField.setText(bean.getBakdir());
     }
 
-    private Fileset getValue() throws Exception {
-        bean = new Fileset();
+    private void setFilesetValue() throws Exception {
         bean.setDictdir(dictDirField.getText());
         bean.setLogdir(logDirField.getText());
         bean.setWatcherdir(watcherDirField.getText());
         bean.setBakdir(bakDirField.getText());
-        return bean;
     }
-
 }

@@ -2,7 +2,7 @@ package com.logminerplus.bean;
 
 import java.sql.Timestamp;
 
-public class Log {
+public class Log  implements Comparable<Log>{
 	
 	private Timestamp ts;
 	
@@ -32,6 +32,11 @@ public class Log {
 
 	public void setAbsolutePath(String absolutePath) {
 		this.absolutePath = absolutePath;
+	}
+
+	@Override
+	public int compareTo(Log o) {
+		return getTs().compareTo(o.getTs());
 	}
 
 }

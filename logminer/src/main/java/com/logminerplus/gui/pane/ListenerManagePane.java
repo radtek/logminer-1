@@ -16,11 +16,7 @@ import java.nio.file.WatchService;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -31,7 +27,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowSorter;
 import javax.swing.table.TableRowSorter;
 
 import org.apache.log4j.Logger;
@@ -52,113 +47,100 @@ import com.logminerplus.common.ObMonitor;
 import com.logminerplus.common.ObNewProducer;
 import com.logminerplus.common.ObPacketType;
 
-public class ListenerManagePane {
+public class ListenerManagePane extends BasicPane {
 
     private static Logger logger = Logger.getLogger(ListenerManagePane.class.getName());
 
-    private Fileset bean;
-    private JScrollPane scrollPane;
-    private JTable logTable;
-    private LogTableModel dataModel;
-    private List<String> columnNames;
-    private List<Log> logInitList = new ArrayList<Log>();
-    // Log List
-    private Queue<Log> logLinkedList = new LinkedList<Log>();
-    private WatchService watcher;
-    private JLabel hintLable;
-    private JButton minerBtn;
-    private JButton stopBtn;
+    private Fileset bean = null;
+    private JPanel mainPanel = null;
+    private JScrollPane scrollPane = null;
+    private JPanel southPane = null;
+    private JTable logTable = null;
+    private JButton updateDictBtn = null;
+    private LogTableModel dataModel = null;
+    private List<String> columnNames = null;
+    private WatchService watcher = null;
+    private JLabel hintLable = null;
+    private JButton minerBtn = null;
+    private JButton stopBtn = null;
+    private JButton refreshBtn = null;
+    private JTabbedPane tabbedPane = null;
 
+    private WatcherThread thread = null;
+    
     public JTabbedPane init() throws Exception {
-        JPanel mainPanel = new JPanel();
-
-        initData();
+    	initData();
 
         dataModel = new LogTableModel();
         dataModel.setColumnNames(columnNames);
-        dataModel.setData(logInitList);
+        dataModel.setData(bean.getLogList());
+
         logTable = new JTable();
         logTable.setRowHeight(Context.getInstance().getPropertyToInteger(PropertiesConstants.TABLE_ROWHEIGHT));
         logTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         logTable.setModel(dataModel);
-        RowSorter<LogTableModel> sorter = new TableRowSorter<LogTableModel>(dataModel);
-        logTable.setRowSorter(sorter);
-
-        WatcherThread thread = new WatcherThread();
-        new Thread(thread).start();
+        logTable.setRowSorter(new TableRowSorter<LogTableModel>(dataModel));
 
         scrollPane = new JScrollPane(logTable);
 
-        JPanel southPane = new JPanel();
-        southPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
         hintLable = new JLabel();
+        
         minerBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_RUN));
         minerBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 startMiner();
+                setEditStatus(false);
             }
         });
+        
         stopBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_STOP));
         stopBtn.setEnabled(false);
         stopBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 ContextConstants.isMineing = false;
+                setEditStatus(true);
             }
         });
-        JButton refreshBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_REFRESH));
+
+        refreshBtn = new JButton(Context.getInstance().getProperty(PropertiesConstants.BUTTON_REFRESH));
         refreshBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
+            	bean.refreshLogListAndLogQueue();
+            	dataModel.setData(bean.getLogList());
             }
         });
-        JButton updateDictBtn = new JButton("更新字典");
-        updateDictBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Connection sourceConn = null;
-                try {
-                    sourceConn = DataBase.getSourceDataBase();
-                    new Miner().createDictionary(sourceConn);
-                } catch (Exception e2) {
-                    e2.printStackTrace();
-                    logger.error("Update Dict", e2);
-                    JOptionPane.showMessageDialog(Context.getInstance().getMainFrame(), "更新字典：" + e2.getMessage(), "异常", JOptionPane.ERROR_MESSAGE);
-                } finally {
-                    if (sourceConn != null) {
-                        try {
-                            sourceConn.close();
-                        } catch (Exception e3) {
-                            e3.printStackTrace();
-                            logger.error("Close Error", e3);
-                        }
-                    }
-                }
+        
+        updateDictBtn = new JButton("更新字典");
+        updateDictBtn.addActionListener(new UpdateDictActionListener());
 
-            }
-        });
+        thread = new WatcherThread();
+        thread.start();
 
         showHint();
         startMiner();
 
+        southPane = new JPanel();
+        southPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
         southPane.add(hintLable);
         southPane.add(minerBtn);
         southPane.add(stopBtn);
         southPane.add(refreshBtn);
-        // southPane.add(updateDictBtn);
+        southPane.add(updateDictBtn);
 
+        mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout(0, 0));
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(southPane, BorderLayout.SOUTH);
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
         tabbedPane.add(Context.getInstance().getProperty(PropertiesConstants.TABBEDPANE_LISTENER), mainPanel);
         return tabbedPane;
     }
 
     private void showHint() {
-        Log log = logLinkedList.peek();
+        Log log = bean.getLogQueue().peek();
         if (log != null) {
-            hintLable.setText("Total:" + logLinkedList.size() + ", Running:" + log.getFilename());
+            hintLable.setText("Total:" + bean.getLogQueue().size() + ", Running:" + log.getFilename());
         } else {
             hintLable.setText("Total:0");
         }
@@ -171,44 +153,15 @@ public class ListenerManagePane {
         columnNames.add(Context.getInstance().getProperty(PropertiesConstants.TABLE_LOG_UPDATETIME));
         columnNames.add(Context.getInstance().getProperty(PropertiesConstants.TABLE_LOG_FILENAME));
         columnNames.add(Context.getInstance().getProperty(PropertiesConstants.TABLE_LOG_FILEPATH));
-        String path = Context.getInstance().getFileSet().getWatcherdir();
-        File file = new File(path);
-        File[] tempList = file.listFiles();
-        if (tempList != null && tempList.length > 0) {
-            for (int i = 0; i < tempList.length; i++) {
-                if (tempList[i].isFile()) {
-                    File f = tempList[i];
-                    long modify = f.lastModified();
-                    Timestamp ts = new Timestamp(modify);
-                    Log log = new Log();
-                    log.setTs(ts);
-                    log.setFilename(f.getName());
-                    log.setAbsolutePath(bean.getLogdir() + "/" + f.getName());
-                    logInitList.add(log);
-                }
-            }
-            Collections.sort(logInitList, new Comparator<Log>() {
-                @Override
-                public int compare(Log o1, Log o2) {
-                    return o1.getTs().compareTo(o2.getTs());
-                }
-            });
-            // 添加到日志队列
-            for (int i = 0; i < logInitList.size(); i++) {
-                logLinkedList.offer(logInitList.get(i));
-                logger.info("Add Log File == " + logInitList.get(i).getAbsolutePath());
-            }
-            logger.info("Add Log File Count:" + logInitList.size());
-        } else {
-            logger.info("No log");
-        }
+        bean.refreshLogListAndLogQueue();
         logger.info("End");
     }
+    
 
     private void refresh() {
         try {
-            if (logLinkedList != null) {
-                dataModel.setData(new ArrayList<Log>(logLinkedList));
+            if (bean.getLogQueue() != null) {
+                dataModel.setData(bean.getLogList());
                 logTable.setModel(dataModel);
                 scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
                 showHint();
@@ -266,7 +219,7 @@ public class ListenerManagePane {
                             log.setTs(ts);
                             log.setFilename(f.getName());
                             log.setAbsolutePath(bean.getLogdir() + "/" + f.getName());
-                            logLinkedList.offer(log);
+                            bean.getLogQueue().offer(log);
                             logger.debug("Watch File: " + f.getAbsolutePath());
                             logger.debug("Length:" + f.length());
                             refresh();
@@ -284,8 +237,32 @@ public class ListenerManagePane {
             }
         }
     }
+    
+    private class UpdateDictActionListener implements ActionListener
+    {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+            Connection sourceConn = null;
+            try {
+                sourceConn = DataBase.getSourceDataBase();
+                new Miner().createDictionary(sourceConn);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Update Dict", e);
+                JOptionPane.showMessageDialog(Context.getInstance().getMainFrame(), "更新字典：" + e.getMessage(), "异常", JOptionPane.ERROR_MESSAGE);
+            } finally {
+                if (sourceConn != null) {
+                    try {
+                        sourceConn.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        logger.error("Close Error", e);
+                    }
+                }
+            }
+		}}
 
-    private class WatcherThread implements Runnable {
+    private class WatcherThread extends Thread {
         @Override
         public void run() {
             logger.info("Watcher Started, watch dir => " + bean.getWatcherdir());
@@ -296,8 +273,8 @@ public class ListenerManagePane {
     }
 
     private class MinerThread extends Thread {
-        private ObNewProducer process = new ObNewProducer();
-        private ObConsumer[] exec = new ObConsumer[ObDefine.OB_THREAD_NUM];
+        private ObNewProducer producer = new ObNewProducer();
+        private ObConsumer[] consumers = new ObConsumer[ObDefine.OB_THREAD_NUM];
         private ObMonitor monitor = new ObMonitor();
         private int curExecId = 0;
 
@@ -305,14 +282,14 @@ public class ListenerManagePane {
 
         public void init() {
 
-            process.init();
+            producer.init();
             // curExecId = 0;
             for (int i = 0; i < ObDefine.OB_THREAD_NUM; i++) {
-                exec[i] = new ObConsumer();
-                exec[i].setIndex(i);
+                consumers[i] = new ObConsumer();
+                consumers[i].setIndex(i);
             }
             for (int i = 0; i < ObDefine.OB_THREAD_NUM; i++) {
-                exec[i].start();
+                consumers[i].start();
             }
 
             logger.info("init producer , consumer and monitorsuccess!");
@@ -324,7 +301,7 @@ public class ListenerManagePane {
             monitor.start();
             while (true) {
                 ObDMLPacket task = new ObDMLPacket();
-                process.getNextPacket(task);
+                producer.getNextPacket(task);
                 if (ObPacketType.LASTPACKET == task.getType()) {
                     break;
                 } else {
@@ -341,10 +318,10 @@ public class ListenerManagePane {
                     if (ObDefine.OB_INVALID_ID == ((int) task.getThreadId())) {
                         task.setThreadID(tid);
                         ObDefine.COMMIT_QUEUE.pushCommitTask(task);
-                        exec[tid].submitPacket(task);
+                        consumers[tid].submitPacket(task);
                     } else {
                         tid = (int) task.getThreadId();
-                        while (!exec[tid].isTaskQueueFull()) {
+                        while (!consumers[tid].isTaskQueueFull()) {
                             ObDefine.OB_PRODUCE_LOCK.set(ObDefine.OB_INVALID_ID);
                             while (ObDefine.OB_PRODUCE_LOCK.get() < 0) {
                                 Thread.sleep(10);
@@ -355,7 +332,7 @@ public class ListenerManagePane {
                         }
                         task.setThreadID(tid);
                         ObDefine.COMMIT_QUEUE.pushCommitTask(task);
-                        exec[tid].submitPacket(task);
+                        consumers[tid].submitPacket(task);
 
                     }
                 }
@@ -369,7 +346,7 @@ public class ListenerManagePane {
             int tidBak = curExecId;
             curExecId = (curExecId + 1) % ObDefine.OB_THREAD_NUM;
 
-            if (exec[curExecId].isTaskQueueFull()) {
+            if (consumers[curExecId].isTaskQueueFull()) {
                 tid = curExecId;
             } else {
                 tid = ObDefine.OB_NEED_WAIT;
@@ -391,7 +368,7 @@ public class ListenerManagePane {
                             break;
                         }
                         // 返回队列头部的元素
-                        Log log = logLinkedList.peek();
+                        Log log = bean.getLogQueue().peek();
                         if (log == null) {
                             // 自动中止
                             swicthMineingStatus(false);
@@ -400,7 +377,7 @@ public class ListenerManagePane {
                         // 只分析一个
                         List<Log> nenLogList = new ArrayList<Log>();
                         nenLogList.add(log);
-                        process.startLogMnr(nenLogList);
+                        producer.startLogMnr(nenLogList);
                         logger.info("start log mnr");
                         ObDefine.OB_PRODUCE_LOCK.set(1);
                         if (ObDefine.OB_SUCCESS != runPratitionJob()) {
@@ -411,7 +388,7 @@ public class ListenerManagePane {
                             throw new Exception();
                         }
                         // 从队列中移除
-                        logLinkedList.poll();
+                        bean.getLogQueue().poll();
                         refresh();
                     } catch (Exception e) {
                         logger.error(e);
@@ -449,7 +426,7 @@ public class ListenerManagePane {
     }
 
     synchronized private void startMiner() {
-        if (logLinkedList != null && !logLinkedList.isEmpty()) {
+        if (bean.getLogQueue() != null && !bean.getLogQueue().isEmpty()) {
             MinerThread thread = new MinerThread();
             thread.init();
             thread.start();
@@ -457,5 +434,11 @@ public class ListenerManagePane {
             logger.info("Log List is null!");
         }
     }
+
+	@Override
+	public void setEditStatus(boolean isEnable) {
+        minerBtn.setEnabled(isEnable);
+        stopBtn.setEnabled(!isEnable);
+	}
 
 }

@@ -44,6 +44,16 @@ public class ObConsumer extends Thread {
         }
     }
 
+    public ObConsumer(int index) {
+        try {
+            init();
+            index_ = index;
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     public void init() throws Exception {
         taskQueue_ = new ArrayBlockingQueue<ObDMLPacket>(
                 ObDefine.OB_MAX_PACKET_NUM);

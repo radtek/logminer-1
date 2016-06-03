@@ -20,6 +20,7 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -79,13 +80,6 @@ public class MainFrame extends JFrame {
             logger.error("初始化异常", e);
         }
         logger.info("******** Welcome ********");
-        logger.info("******** Welcome ********");
-        logger.info("******** Welcome ********");
-        logger.info("******** Welcome ********");
-        logger.info("******** Welcome ********");
-        logger.info("******** Welcome ********");
-        logger.info("******** Welcome ********");
-        logger.info("******** Welcome ********");
         long initEnd = System.currentTimeMillis();
         long millisecond = initEnd - initStart;
         logger.info("Initialization processed in " + millisecond + " ms");
@@ -93,7 +87,6 @@ public class MainFrame extends JFrame {
 
     private void initContext() throws Exception {
         // 读取语言配置文件
-        logger.info("----------------------------------------------------");
         String localeFile = ContextConstants.CONFIG_LOCALE_ZH;
         String osName = System.getProperty("os.name");
         if (!osName.startsWith("Win")) {
@@ -101,7 +94,7 @@ public class MainFrame extends JFrame {
         }
         logger.info("OS:" + osName);
         Properties propertiesConstants = PropertiesUtil.loadProp(localeFile);
-        //
+        //       
         Context context = Context.getInstance();
         context.setPropertiesConstants(propertiesConstants);
         context.setMainFrame(this);

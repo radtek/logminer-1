@@ -22,6 +22,7 @@ public class TestWatcherService {
 				StandardWatchEventKinds.ENTRY_MODIFY);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void handleEvents() throws InterruptedException{
 		while(true){
 			WatchKey key = watcher.take();

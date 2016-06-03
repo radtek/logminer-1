@@ -172,14 +172,14 @@ public class ObNewProducer {
 
     public void init() {
         ObDefine.COMMIT_QUEUE.init();
-        ObDefine.hash.put("HS_KPI_EWB", 1);
-        ObDefine.hash.put("HS_GLOBAL_BUSI_LOG", 1);
-        ObDefine.hash.put("SEND_OPERATION_ID", 1);
-        ObDefine.hash.put("HS_AUTH_USER_ROLE", 1);
-        ObDefine.hash.put("TEMP_FIN_SUM_BALANCE", 1);
-        ObDefine.hash.put("HS_AUTH_LOGIN_HISTORY", 1);
-        ObDefine.hash.put("HS_EWBS_LIST_DETAIL", 1);
-        ObDefine.hash.put("HS_QUOTE_EX_PROP", 1);
+        ObDefine.tablenameSet.add("HS_KPI_EWB");
+        ObDefine.tablenameSet.add("HS_GLOBAL_BUSI_LOG");
+        ObDefine.tablenameSet.add("SEND_OPERATION_ID");
+        ObDefine.tablenameSet.add("HS_AUTH_USER_ROLE");
+        ObDefine.tablenameSet.add("TEMP_FIN_SUM_BALANCE");
+        ObDefine.tablenameSet.add("HS_AUTH_LOGIN_HISTORY");
+        ObDefine.tablenameSet.add("HS_EWBS_LIST_DETAIL");
+        ObDefine.tablenameSet.add("HS_QUOTE_EX_PROP");
         // ObDefine.hash.put();
         // for(int i = 0; i < ObDefine.OB_THREAD_NUM; i++)
         // {
@@ -321,7 +321,6 @@ public class ObNewProducer {
         while (true) {
             if (resultSet.next()) {
                 tmp = resultSet.getString(4);
-                // ObDefine.logger.info("test:whx " + tmp);
                 tableName = resultSet.getString(3);
                 segType = resultSet.getString(10);
                 record.operation = resultSet.getInt(2);
@@ -330,7 +329,7 @@ public class ObNewProducer {
                 if (null != tableName
                         && (tableName.startsWith("JBPM4_HIST") || tableName.startsWith("JBPM4_TASK") || tableName.startsWith("HS_GLOBAL_TASK")))
                     continue;
-                if (null != tableName && ObDefine.hash.containsKey(tableName))
+                if (null != tableName && ObDefine.tablenameSet.contains(tableName))
                     continue;
                 convert = MinerConvert.convertSql(tmp, sourceName, targetName, mapperList, true);
                 record.xid = resultSet.getString(1);
