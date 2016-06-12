@@ -130,12 +130,8 @@ public class LogManagePane {
             for (int i = 0; i < tempList.length; i++) {
                 if (tempList[i].isFile()) {
                     File f = tempList[i];
-                    long modify = f.lastModified();
-                    Timestamp ts = new Timestamp(modify);
-                    Log log = new Log();
-                    log.setTs(ts);
-                    log.setFilename(f.getName());
-                    log.setAbsolutePath(f.getAbsolutePath());
+                    logger.info("initData() f.getPath() => " + f.getParent());
+                    Log log = new Log(new Timestamp(f.lastModified()), f.getName(), f.getParent());
                     logList.add(log);
                 }
             }

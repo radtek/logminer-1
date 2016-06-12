@@ -45,7 +45,7 @@ public class Main {
             public void run() {
                 try {
                     logger.info("Starting");
-                    MainFrame frame = new MainFrame();
+                    JMainFrame frame = new JMainFrame();
                     frame.setVisible(true);
                     // 启动完成时间
                     long successTime = System.currentTimeMillis();

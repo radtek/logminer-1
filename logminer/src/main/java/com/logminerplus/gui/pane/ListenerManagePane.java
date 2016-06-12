@@ -213,15 +213,9 @@ public class ListenerManagePane extends BasicPane {
                     if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
                         // 文件创建时：添加一个元素
                         if (f.isFile()) {
-                            long modify = f.lastModified();
-                            Timestamp ts = new Timestamp(modify);
-                            Log log = new Log();
-                            log.setTs(ts);
-                            log.setFilename(f.getName());
-                            log.setAbsolutePath(bean.getLogdir() + "/" + f.getName());
+                            Log log = new Log(new Timestamp(f.lastModified()), f.getName(), bean.getLogdir());
                             bean.getLogQueue().offer(log);
-                            logger.debug("Watch File: " + f.getAbsolutePath());
-                            logger.debug("Length:" + f.length());
+                            logger.debug("Watch File Length: " + f.length() + ", file content: " + f.getAbsolutePath());
                             refresh();
                         }
                     } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {

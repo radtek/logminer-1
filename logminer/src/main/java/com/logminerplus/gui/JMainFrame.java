@@ -4,8 +4,6 @@ import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -20,11 +18,13 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,17 +48,17 @@ import com.logminerplus.utils.ContextConstants;
 import com.logminerplus.utils.PropertiesConstants;
 import com.logminerplus.utils.PropertiesUtil;
 
-public class MainFrame extends JFrame {
+public class JMainFrame extends JFrame {
 
     /**
 	 * 
 	 */
     private static final long serialVersionUID = -1271790440723642650L;
 
-    private static Logger logger = Logger.getLogger(MainFrame.class.getName());
+    private static Logger logger = Logger.getLogger(JMainFrame.class.getName());
 
     // 菜单条
-    private MenuBar menuBar;
+    private JMenuBar menuBar;
     // 内容面板
     private JPanel contentPane;
     // 树形菜单
@@ -67,7 +67,7 @@ public class MainFrame extends JFrame {
     // 选项卡内容
     private JTabbedPane mainTabbedPane;
 
-    public MainFrame() {
+    public JMainFrame() {
         logger.info("enter MainFrame()");
         long initStart = System.currentTimeMillis();
         try {
@@ -112,7 +112,7 @@ public class MainFrame extends JFrame {
         Dimension frameSize = this.getSize();
         this.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
         // 设置菜单条
-        setMenuBar(loadMenuBar());
+        setJMenuBar(loadMenuBar());
         // 设置主内容
         setContentPane(contentPane());
     }
@@ -250,18 +250,18 @@ public class MainFrame extends JFrame {
      * 
      * @return
      */
-    private MenuBar loadMenuBar() {
+    private JMenuBar loadMenuBar() {
         if (menuBar == null) {
             // 菜单
-            Menu menuFile = new Menu(Context.getInstance().getProperty(PropertiesConstants.MENU_FILE));
-            MenuItem mItemHide = new MenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_FILE_HIDE));
+            JMenu menuFile = new JMenu(Context.getInstance().getProperty(PropertiesConstants.MENU_FILE));
+            JMenuItem mItemHide = new JMenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_FILE_HIDE));
             mItemHide.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JOptionPane.showMessageDialog(contentPane, Context.getInstance().getProperty(PropertiesConstants.MENU_FILE_HIDE), "提示",
                             JOptionPane.WARNING_MESSAGE);
                 }
             });
-            MenuItem mItemExit = new MenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_FILE_EXIT));
+            JMenuItem mItemExit = new JMenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_FILE_EXIT));
             mItemExit.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     logger.info("********Exit********");
@@ -273,8 +273,8 @@ public class MainFrame extends JFrame {
             menuFile.add(mItemExit);
 
             // 日志
-            Menu menuLog = new Menu(Context.getInstance().getProperty(PropertiesConstants.MENU_LOG));
-            MenuItem menuLogView = new MenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_LOG_VIEW));
+            JMenu menuLog = new JMenu(Context.getInstance().getProperty(PropertiesConstants.MENU_LOG));
+            JMenuItem menuLogView = new JMenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_LOG_VIEW));
             menuLogView.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (menuNameList != null) {
@@ -284,7 +284,7 @@ public class MainFrame extends JFrame {
                     }
                 }
             });
-            MenuItem menuLogImport = new MenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_LOG_EXPORT));
+            JMenuItem menuLogImport = new JMenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_LOG_EXPORT));
             menuLogImport.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JOptionPane.showMessageDialog(contentPane, "暂不支持", "提示", JOptionPane.WARNING_MESSAGE);
@@ -293,15 +293,15 @@ public class MainFrame extends JFrame {
             menuLog.add(menuLogView);
 
             // 帮助
-            Menu menuHelp = new Menu(Context.getInstance().getProperty(PropertiesConstants.MENU_HELP));
-            MenuItem menuHelpHelp = new MenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_HELP));
+            JMenu menuHelp = new JMenu(Context.getInstance().getProperty(PropertiesConstants.MENU_HELP));
+            JMenuItem menuHelpHelp = new JMenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_HELP));
             menuHelpHelp.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JOptionPane.showMessageDialog(contentPane, Context.getInstance().getProperty(PropertiesConstants.APP_MAIN_TITLE), "提示",
                             JOptionPane.INFORMATION_MESSAGE);
                 }
             });
-            MenuItem menuHelpAbout = new MenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_HELP_ABOUT));
+            JMenuItem menuHelpAbout = new JMenuItem(Context.getInstance().getProperty(PropertiesConstants.MENU_HELP_ABOUT));
             menuHelpAbout.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JOptionPane.showMessageDialog(contentPane, Context.getInstance().getProperty(PropertiesConstants.APP_MAIN_TITLE), "提示",
@@ -313,7 +313,7 @@ public class MainFrame extends JFrame {
             menuHelp.add(menuHelpAbout);
 
             // 添加按钮组
-            menuBar = new MenuBar();
+            menuBar = new JMenuBar();
             menuBar.add(menuFile);
             menuBar.add(menuLog);
             menuBar.add(menuHelp);

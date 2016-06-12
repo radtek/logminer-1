@@ -257,22 +257,29 @@ public class ObNewProducer {
             Statement sourceStat = sourceConn.createStatement();
             Statement targetStat = targetConn.createStatement();
             if (logList != null && !logList.isEmpty()) {
-                // boolean isError = false;
-                // String filename = logList.get(0).getFilename();
+                // 1.添加日志文件
                 String sql = add_logfile(logList);
-                // ********
                 CallableStatement callableStatement = sourceConn.prepareCall(sql);
                 callableStatement.execute();
-                resultSet = sourceStat.executeQuery("SELECT db_name, thread_sqn, filename FROM v$logmnr_logs");
-                while (resultSet.next()) {
-                    ObDefine.logger.info("# Added Flie:" + resultSet.getObject(3));
+                
+                // 2.查看日志文件是否添加成功
+                ResultSet logmnr_logs_rs = sourceStat.executeQuery("SELECT db_name, thread_sqn, filename FROM v$logmnr_logs");
+                while (logmnr_logs_rs.next()) {
+                    ObDefine.logger.info("# Added Flie:" + logmnr_logs_rs.getObject(3));
                 }
+                
+                // 3.从同步目标库中获取最大的scn号
                 long startScn = getLastScn(targetStat);
-                // long nextScn = startScn;
                 ObDefine.logger.info("# StartScn:" + startScn);
+                
+                // 4.添加字典文件
                 callableStatement = sourceConn.prepareCall(start_logmnr(0, dictionary));
+                ObDefine.logger.debug("#dictionary is => " + dictionary);
+                ObDefine.logger.debug("#callableStatement is => " + start_logmnr(0, dictionary));
                 callableStatement.execute();
                 ObDefine.logger.info("# Result:");
+                
+                // 5.从v$logmnr_contents表中查询对应的内容
                 resultSet = sourceStat.executeQuery(getSql(startScn));
             }
         } catch (SQLException e) {

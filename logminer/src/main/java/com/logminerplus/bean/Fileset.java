@@ -90,10 +90,7 @@ public class Fileset {
         	}
             for (File f : file.listFiles())
             {
-                Log log = new Log();
-                log.setTs(new Timestamp(f.lastModified()));
-                log.setFilename(f.getName());
-                log.setAbsolutePath(getLogdir() + "/" + f.getName());
+                Log log = new Log(new Timestamp(f.lastModified()), f.getName(), getLogdir());
                 getLogList().add(log);
             }
             Collections.sort(getLogList());

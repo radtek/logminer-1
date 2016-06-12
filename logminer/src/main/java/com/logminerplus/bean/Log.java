@@ -8,8 +8,21 @@ public class Log  implements Comparable<Log>{
 	
 	private String filename;
 	
-	private String absolutePath;
-
+	private String dirname;
+	
+	public Log()
+	{
+	    ts = new Timestamp(-1);
+	    filename = new String();
+	    dirname = new String();
+	}
+	
+	public Log(Timestamp ts, String filename, String dirname)
+	{
+	    this.ts = ts;
+	    this.filename = filename;
+	    this.dirname = dirname;
+	}
 	public Timestamp getTs() {
 		return ts;
 	}
@@ -27,16 +40,19 @@ public class Log  implements Comparable<Log>{
 	}
 
 	public String getAbsolutePath() {
-		return absolutePath;
+		return dirname + "/" + filename;
 	}
 
-	public void setAbsolutePath(String absolutePath) {
-		this.absolutePath = absolutePath;
-	}
+    public String getDirname() {
+        return dirname;
+    }
+
+    public void setDirname(String dirname) {
+        this.dirname = dirname;
+    }
 
 	@Override
 	public int compareTo(Log o) {
 		return getTs().compareTo(o.getTs());
 	}
-
 }
