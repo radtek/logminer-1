@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.logminerplus.common.ObDefine;
-import com.logminerplus.core.Miner;
-
-import org.apache.log4j.Logger;
 
 public class ObDMLPacket 
 {
@@ -21,8 +18,6 @@ public class ObDMLPacket
   private int threadID_;
   
   public int conflictPos_;
-  
-  private static Logger logger = Logger.getLogger(Miner.class.getName());
   
   private ObPacketType type_;
   
@@ -60,7 +55,6 @@ public class ObDMLPacket
 	threadID_ = -1;
 	type_ = ObPacketType.ERROR;
 	isEmpty_ = true;
-	//tableName_ = null;
 	bloomFilter_.clear();
 	conflictPos_ = ObDefine.OB_INVALID_ID;
 	dmlCount_ = 0;

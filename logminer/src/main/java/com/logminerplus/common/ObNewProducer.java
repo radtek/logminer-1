@@ -16,144 +16,143 @@ import com.logminerplus.utils.Context;
 import com.logminerplus.common.ObDMLPacket;
 import com.logminerplus.core.MinerConvert;
 
-class newDmlRecord {
-
-    public String xid = null;
-    public String dml = null;
-    public String rsID = null;
-    public int operation = ObDefine.OB_INVALID_ID;
-    public int ssn = ObDefine.OB_INVALID_ID;
-    public int csf = ObDefine.OB_INVALID_ID;
-    public int rollback = ObDefine.OB_INVALID_ID;
-    public String tableName = null;
-    public String owner = null;
-    public ObPacketType type = ObPacketType.ERROR;
-    public int updateRowCount = 0;
-    public int[] conflictThread = new int[2]; // 0 for thread index, 1 for
-                                              // thread no
-    public String segType = null;
-    public String block = null;
-    public int status = ObDefine.OB_INVALID_ID;
-
-    public newDmlRecord() {
-        reset();
-    }
-
-    public void reset() {
-        xid = null;
-        dml = null;
-        rsID = null;
-        operation = ObDefine.OB_INVALID_ID;
-        ssn = ObDefine.OB_INVALID_ID;
-        csf = ObDefine.OB_INVALID_ID;
-        rollback = ObDefine.OB_INVALID_ID;
-        tableName = null;
-        owner = null;
-        type = ObPacketType.ERROR;
-        conflictThread[0] = ObDefine.OB_INVALID_ID;
-        conflictThread[1] = ObDefine.OB_INVALID_ID;
-        updateRowCount = 0;
-        segType = null;
-        block = null;
-        status = ObDefine.OB_INVALID_ID;
-    }
-
-    public void copy(newDmlRecord other) {
-        this.xid = other.xid;
-        this.dml = other.dml;
-        this.rsID = other.rsID;
-        this.operation = other.operation;
-        this.ssn = other.ssn;
-        this.csf = other.csf;
-        this.rollback = other.rollback;
-        this.tableName = other.tableName;
-        this.type = other.type;
-        this.updateRowCount = other.updateRowCount;
-        this.owner = other.owner;
-        this.conflictThread = Arrays.copyOf(other.conflictThread, 2);
-        this.segType = other.segType;
-        this.block = other.block;
-        this.status = other.status;
-    }
-
-    public void incUpdateRowCount() {
-        this.updateRowCount++;
-    }
-
-    public boolean ifBatchUpdateSafe() {
-        return updateRowCount < ObDefine.OB_SAFE_BATCH_UPDATE_NUM;
-    }
-
-    public int[] getConflictRowThread(String tableName) {
-        return ObDefine.COMMIT_QUEUE.getConflictThreadId(tableName);
-    }
-
-    public void handleConlictRow(String blockstr) {
-        int[] pos = new int[2];
-        pos = Arrays.copyOf(getConflictRowThread(blockstr), 2);
-        if (ObDefine.OB_INVALID_ID != pos[0]) {
-            if (ObDefine.OB_INVALID_ID == conflictThread[0]) {
-                conflictThread = Arrays.copyOf(pos, 2);
-            } else if (pos[0] < conflictThread[0]) {
-                conflictThread = Arrays.copyOf(pos, 2);
-            }
-        }
-    }
-}
-
-class newDmlPool {
-    private newDmlRecord head = new newDmlRecord();
-    private newDmlRecord tail = new newDmlRecord();
-
-    public newDmlPool() {
-        head.reset();
-        tail.reset();
-    }
-
-    public int addIn(newDmlRecord e) {
-        int ret = ObDefine.OB_SUCCESS;
-        if (ObDefine.OB_INVALID_ID == head.ssn && ObDefine.OB_INVALID_ID == tail.ssn) {
-            head.copy(e);
-            if (null != e.block)
-                head.handleConlictRow(e.block);
-            ret = ObDefine.OB_NEED_AGAIN;
-        } else if (ObDefine.OB_INVALID_ID == tail.ssn) {
-            if (0 == head.dml.compareTo(e.dml)) {
-                ret = ObDefine.OB_NEED_AGAIN;
-                head.type = ObPacketType.BATCHUPDATE;
-                head.incUpdateRowCount();
-                if (null != e.block)
-                    head.handleConlictRow(e.block);
-            } else {
-                tail.copy(e);
-                if (null != e.block)
-                    tail.handleConlictRow(e.block);
-            }
-        } else {
-            ret = ObDefine.OB_NEED_STOP;
-        }
-        return ret;
-    }
-
-    public void pop() {
-        head.copy(tail);
-        tail.reset();
-        ;
-        // return ret;
-    }
-
-    public newDmlRecord getOne() {
-        newDmlRecord ret = new newDmlRecord();
-        ret.copy(head);
-        return ret;
-    }
-
-    public boolean isEmpty() {
-        return (ObDefine.OB_INVALID_ID == head.ssn && ObDefine.OB_INVALID_ID == tail.ssn);
-    }
-}
 
 public class ObNewProducer {
+    class newDmlPool {
+        private newDmlRecord head = new newDmlRecord();
+        private newDmlRecord tail = new newDmlRecord();
+
+        public newDmlPool() {
+            head.reset();
+            tail.reset();
+        }
+
+        public int addIn(newDmlRecord e) {
+            int ret = ObDefine.OB_SUCCESS;
+            if (ObDefine.OB_INVALID_ID == head.ssn && ObDefine.OB_INVALID_ID == tail.ssn) {
+                head.copy(e);
+                if (null != e.block)
+                    head.handleConlictRow(e.block);
+                ret = ObDefine.OB_NEED_AGAIN;
+            } else if (ObDefine.OB_INVALID_ID == tail.ssn) {
+                if (0 == head.dml.compareTo(e.dml)) {
+                    ret = ObDefine.OB_NEED_AGAIN;
+                    head.type = ObPacketType.BATCHUPDATE;
+                    head.incUpdateRowCount();
+                    if (null != e.block)
+                        head.handleConlictRow(e.block);
+                } else {
+                    tail.copy(e);
+                    if (null != e.block)
+                        tail.handleConlictRow(e.block);
+                }
+            } else {
+                ret = ObDefine.OB_NEED_STOP;
+            }
+            return ret;
+        }
+
+        public void pop() {
+            head.copy(tail);
+            tail.reset();
+        }
+
+        public newDmlRecord getOne() {
+            newDmlRecord ret = new newDmlRecord();
+            ret.copy(head);
+            return ret;
+        }
+
+        public boolean isEmpty() {
+            return (ObDefine.OB_INVALID_ID == head.ssn && ObDefine.OB_INVALID_ID == tail.ssn);
+        }
+    }
+    
+    class newDmlRecord {
+
+        public String xid = null;
+        public String dml = null;
+        public String rsID = null;
+        public int operation = ObDefine.OB_INVALID_ID;
+        public int ssn = ObDefine.OB_INVALID_ID;
+        public int csf = ObDefine.OB_INVALID_ID;
+        public int rollback = ObDefine.OB_INVALID_ID;
+        public String tableName = null;
+        public String owner = null;
+        public ObPacketType type = ObPacketType.ERROR;
+        public int updateRowCount = 0;
+        public int[] conflictThread = new int[2]; // 0 for thread index, 1 for
+                                                  // thread no
+        public String segType = null;
+        public String block = null;
+        public int status = ObDefine.OB_INVALID_ID;
+
+        public newDmlRecord() {
+            reset();
+        }
+
+        public void reset() {
+            xid = null;
+            dml = null;
+            rsID = null;
+            operation = ObDefine.OB_INVALID_ID;
+            ssn = ObDefine.OB_INVALID_ID;
+            csf = ObDefine.OB_INVALID_ID;
+            rollback = ObDefine.OB_INVALID_ID;
+            tableName = null;
+            owner = null;
+            type = ObPacketType.ERROR;
+            conflictThread[0] = ObDefine.OB_INVALID_ID;
+            conflictThread[1] = ObDefine.OB_INVALID_ID;
+            updateRowCount = 0;
+            segType = null;
+            block = null;
+            status = ObDefine.OB_INVALID_ID;
+        }
+
+        public void copy(newDmlRecord other) {
+            this.xid = other.xid;
+            this.dml = other.dml;
+            this.rsID = other.rsID;
+            this.operation = other.operation;
+            this.ssn = other.ssn;
+            this.csf = other.csf;
+            this.rollback = other.rollback;
+            this.tableName = other.tableName;
+            this.type = other.type;
+            this.updateRowCount = other.updateRowCount;
+            this.owner = other.owner;
+            this.conflictThread = Arrays.copyOf(other.conflictThread, 2);
+            this.segType = other.segType;
+            this.block = other.block;
+            this.status = other.status;
+        }
+
+        public void incUpdateRowCount() {
+            this.updateRowCount++;
+        }
+
+        public boolean ifBatchUpdateSafe() {
+            return updateRowCount < ObDefine.OB_SAFE_BATCH_UPDATE_NUM;
+        }
+
+        public int[] getConflictRowThread(String tableName) {
+            return ObDefine.COMMIT_QUEUE.getConflictThreadId(tableName);
+        }
+
+        public void handleConlictRow(String blockstr) {
+            int[] pos = new int[2];
+            pos = Arrays.copyOf(getConflictRowThread(blockstr), 2);
+            if (ObDefine.OB_INVALID_ID != pos[0]) {
+                if (ObDefine.OB_INVALID_ID == conflictThread[0]) {
+                    conflictThread = Arrays.copyOf(pos, 2);
+                } else if (pos[0] < conflictThread[0]) {
+                    conflictThread = Arrays.copyOf(pos, 2);
+                }
+            }
+        }
+    }
+
     private static String dictionary;
     private static String sourceName;
     private static String targetName;
@@ -164,8 +163,6 @@ public class ObNewProducer {
     private newDmlPool pool = new newDmlPool();
     private ObDMLPacket curPacket = new ObDMLPacket();
     public int seq = 0;
-
-    // public int batchUpdateCount = 0;
 
     public ObNewProducer() {
     }
@@ -201,7 +198,6 @@ public class ObNewProducer {
 
     public static void startConn() {
         ObDefine.logger.info("################Start Conn################");
-        // long start = System.currentTimeMillis();
         sourceConn = null;
         targetConn = null;
         resultSet = null;
@@ -388,15 +384,12 @@ public class ObNewProducer {
         int ret = ObDefine.OB_SUCCESS;
         StringBuilder buf = new StringBuilder();
         curPacket.reset();
-        // ObDefine.logger.info("size = "+ curPacket.getTableNameArraySize());
         newDmlRecord record = new newDmlRecord();
         while (true) {
             if (ObDefine.OB_ITER_END == (ret = next(curPacket)) && pool.isEmpty()) {
                 curPacket.setPacketType(ObPacketType.LASTPACKET);
                 break;
             } else {
-                // ObDefine.logger.info("test::whx=> " +record.dml+"  "+
-                // record.segType);
                 record = pool.getOne();
                 if (ObDefine.OB_START == record.operation) {
                     curPacket.open();
@@ -418,10 +411,7 @@ public class ObNewProducer {
                     } else {
 
                         buf.append(record.dml);
-                        // ObDefine.logger.info("add DML = > "+ buf.toString() +
-                        // "csf=> "+record.csf);
                         if (0 == record.csf) {
-                            // buf.append(record.dml);
                             curPacket.addDML(buf.toString(), record.tableName, record.updateRowCount);
                             buf.delete(0, buf.length());
                         }
@@ -437,25 +427,19 @@ public class ObNewProducer {
                     }
                     pool.pop();
                 }
-
             }
         }
-        // ObDefine.logger.info("produce a packet=> "+ curPacket.getArraySize()
-        // + " "+ curPacket.getType());
         return ret;
     }
 
     public void getNextPacket(ObDMLPacket packet) throws Exception {
-        // ObDMLPacket packet = new ObDMLPacket();
         int tmpRet = ObDefine.OB_SUCCESS;
         if (ObDefine.OB_PACKET_INIT != curPacket.getStatus() && ObPacketType.SYSPACKET != curPacket.getType()) {
             packet.copyPacket(curPacket);
             curPacket.reset();
         }
-        // ObDefine.logger.info("in a loop");
         while (true) {
             if (ObDefine.OB_SAFE_DML_NUM <= packet.getArraySize()) {
-                // logger.info("break ");
                 break;
             }
             if (ObDefine.OB_ITER_END == (tmpRet = nextPacket()) && pool.isEmpty()) {
@@ -469,15 +453,8 @@ public class ObNewProducer {
                     break;
                 } else {
                     packet.copyPacket(curPacket);
-                    // ObDefine.logger.info("get a packet =>" +
-                    // curPacket.getSeq() + " " + curPacket.getType()
-                    // +" size = "+ (packet.getArraySize() +
-                    // curPacket.getArraySize()) );
                 }
             }
         }
-        // ObDefine.logger.info("get a loop");
-        // return packet;
     }
-
 }

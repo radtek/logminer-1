@@ -1,6 +1,5 @@
 package com.logminerplus.common;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,7 +42,6 @@ public class ObDefine
      
      public static int debugId = 0;
      
-     public static HashMap<String, Integer> hash = new HashMap<String, Integer>();
      public static HashSet<String> tablenameSet = new HashSet<String>();
      
    //=======================================for code's logical control========================================================//
